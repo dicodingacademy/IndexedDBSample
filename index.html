@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        table {
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<form>
+    <label for="bookId">Id Buku: </label><input id="bookId" type="number">
+    <label for="bookName">Nama Buku:  </label > <input id="bookName" type="text">
+    <label for="bookYear">Tahun: </label><input id="bookYear" type="number">
+    <label for="bookAuthor">Penulis: </label><input id="bookAuthor" type="author">
+    <button onclick="insertBook()">Submit</button>
+</form>
+<div>
+    <table>
+        <thead>
+            <tr>
+                <th>Id Buku</th>
+                <th>Nama Buku</th>
+                <th>Tahun</th>
+                <th>Penulis</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="booksRow"></tbody>
+    </table>
+</div>
+
+<script src="js/idb.js"></script>
+<script src="js/db-controller.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+    });
+    const booksRow = document.querySelector("#booksRow");
+    const inputBookId = document.querySelector("#bookId");
+    const inputBookName = document.querySelector("#bookName");
+    const inputBookYear = document.querySelector("#bookYear");
+    const inputBookAuthor = document.querySelector("#bookAuthor");
+
+
+    function insertBook() {
+        const book = {
+            bookId: inputBookId.value,
+            bookName: inputBookName.value,
+            bookYear: inputBookYear.value,
+            bookAuthor: inputBookAuthor.value
+        };
+
+        dbInsertBook(book).then(() => {
+            showAllBook()
+        })
+    }
+
+    function showAllBook() {
+       dbGetAllBook().then(books => {
+           let listBooksInText = "";
+           books.forEach(book => {
+               listBooksInText += `
+               <tr>
+                 <td>${book.bookId}</td>
+                 <td>${book.bookName}</td>
+                 <td>${book.bookYear}</td>
+                 <td>${book.bookAuthor}</td>
+                 <td><button id="${book.bookId}" class="removeButton">Remove</button></td>
+               </tr>
+               `;
+           });
+           booksRow.innerHTML = listBooksInText;
+
+           let removeButtons = document.querySelectorAll(".removeButton");
+           for(let button of removeButtons) {
+               button.addEventListener("click", function (event) {
+                   let bookId = event.target.id;
+                   dbDeleteBook(bookId).then(() => {
+                       showAllBook()
+                   })
+               })
+           }
+       })
+    }
+
+    showAllBook()
+</script>
+</body>
+</html>
